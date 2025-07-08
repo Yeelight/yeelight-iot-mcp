@@ -63,8 +63,8 @@ def get_auth_info(context: Context) -> tuple[str, str, str]:
     if request is None or not hasattr(request, "headers"):
         raise ValueError("request or request.headers is None, 无法获取认证信息")
     authorization = request.headers.get(settings.AUTHORIZATION_HEADER_KEY)
-    client_id = request.headers.get("clientId")
-    house_id = request.headers.get("houseId")
+    client_id = request.headers.get(settings.CLIENT_ID_HEADER_KEY)
+    house_id = request.headers.get(settings.HOUSE_ID_HEADER_KEY)
     return f"Bearer {authorization}", client_id, house_id
 
 

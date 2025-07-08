@@ -47,7 +47,7 @@ Yeelight MCP Server 支持两种接入方式：**官方远程MCP Server接入** 
 
 
 #### 📌 前置准备
-在开始接入之前，您需要准备好的访问令牌（AccessToken）、clientId、houseId信息。
+在开始接入之前，您需要准备好的`Authorization（访问令牌）`、`Client-Id` 和 `House-Id`信息。
 
 - 访问令牌（AccessToken）获取
 
@@ -112,7 +112,7 @@ uv pip install ./
 
 ### 🧩 客户端配置
 
-Yeelight MCP Server 采用 Streamable HTTP 协议 进行接入，目前主流 AI 客户端均已支持基于该协议的 MCP 接口调用。接入时，您只需将 AccessToken、clientId 和 houseId 作为请求 Header 传入即可。
+Yeelight MCP Server 采用 Streamable HTTP 协议 进行接入，目前主流 AI 客户端均已支持基于该协议的 MCP 接口调用。接入时，您只需将 `Authorization`、`Client-Id` 和 `House-Id` 作为请求 Header 传入即可。
 
 以下为部分客户端的配置示例，供参考：
 
@@ -130,9 +130,9 @@ Cursor MCP配置文件示例：
     "yeelight-remote-iot-mcp-server": {
       "url": "https://api.yeelight.com/apis/mcp_server/v1/mcp/", 
       "headers": {
-        "access_token": "${ACCESS_TOKEN}",
-        "clientId": "${CLIENT_ID}",
-        "houseId": "${HOUSEI_Id}"
+        "Authorization": "${Authorization}",
+        "Client-Id": "${Client_Id}",
+        "House-Id": "${HOUSEI_Id}"
       }
     }
   }
@@ -150,16 +150,16 @@ Claude Desktop MCP配置文件示例：
       "mcp-remote",
       "https://api.yeelight.com/apis/mcp_server/v1/mcp/",
       "--header",
-      "access_token:${ACCESS_TOKEN}",
+      "Authorization:${Authorization}",
       "--header",
-      "clientId:${CLIENT_ID}",
+      "Client-Id:${CLIENT_ID}",
       "--header",
-      "houseId:${HOUSE_ID}",
+      "House-Id:${HOUSE_ID}",
       "--allow-http",
       "true"
     ],
     "env": {
-      "ACCESS_TOKEN": "${ACCESS_TOKEN}",
+      "AUTHORIZATION": "${ACCESS_TOKEN}",
       "CLIENT_ID": "${CLIENT_ID}",
       "HOUSE_ID": "${HOUSEI_Id}"
     }
@@ -168,7 +168,7 @@ Claude Desktop MCP配置文件示例：
 ```
 
 #### Cherry Studio接入
-打开Cherry Studio页面，依次点击 【设置】→【MCP服务器】→【添加服务器】，填写 AccessToken、clientId、houseId 信息，如下图所示：
+打开Cherry Studio页面，依次点击 【设置】→【MCP服务器】→【添加服务器】，填写 `Authorization`、`Client-Id` 和 `House-Id` 信息，如下图所示：
 <p align="center">
   <img src="readme/images/cherry_studio_config.jpeg" alt="Yeelight Pro APP 查看家庭ID" width="1000"/>
 </p>
