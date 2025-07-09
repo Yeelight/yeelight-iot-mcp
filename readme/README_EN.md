@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-English | [中文](/readme/README_CN.md) 
+English | [中文](/readme/README.md) 
 </p>
 
 # Yeelight MCP Server
