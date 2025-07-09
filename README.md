@@ -1,133 +1,132 @@
 <p align="center">
-  <a href="https://cn.yeelight.com/" target="_blank">
+  <a href="https://en.yeelight.com/" target="_blank">
     <img src="readme/images/yeelight_logo1.png" alt="Yeelight MCP Server Logo" height="35"/>
   </a>
 </p>
 
 <p align="center">
-  <a href="/README_EN.md">English</a> | 中文
+  English | <a href="/README_CN.md">中文</a>
 </p>
 
 # Yeelight MCP Server
 
-## 项目介绍
-Yeelight MCP Server 是一个基于 [MCP（Model Context Protocol）](https://modelcontextprotocol.io/introduction)协议开发的智能照明控制服务。该服务旨在为 AI 助手、智能代理（Agent，如Claude Desktop、Cursor、Cherry Studio等）或其他支持 MCP 协议的客户端提供统一的接口，使其能够与 Yeelight Pro 系列智能设备进行高效交互。
+## Project Introduction
+Yeelight MCP Server is an intelligent lighting control service developed based on the [MCP (Model Context Protocol)](https://modelcontextprotocol.io/introduction). This service is designed to provide a unified interface for AI assistants, intelligent agents (such as Claude Desktop, Cursor, Cherry Studio, etc.), or other clients supporting the MCP protocol, enabling efficient interaction with Yeelight Pro series smart devices.
 
-通过接入 Yeelight MCP Server，您可以使用自然语言完成智能设备控制、设备状态查询、预设情景执行等操作，协助您打造更智能、更自然的人机交互体验。
-
-
-## 功能特性
-
-- 💡 智能设备控制。
-
-包括但不限于：开关控制、亮度调节、颜色与色温设置、窗帘控制、多通道设备控制等
-
-- 🔍 状态查询能力
-
-提供实时设备状态读取接口，支持查询当前开关状态、亮度、色温、色值、在线状态等关键信息。
-
-- 🌈 情景模式执行
-
-支持预设情景（Scene）触发与执行，可用于实现灯光联动、氛围营造等多设备协调控制。
-
-- 🛠️ 易于扩展与集成
-    - 支持本地源码部署：开源代码可在本地独立部署，支持内网运行，无需依赖云服务，适合对数据隐私、安全性有更高要求的用户或企业。    
-	- 支持链接远程官方服务：可选择接入 Yeelight 官方云平台，实现设备远程控制、跨网络访问、无感发现等功能，提升灵活性和可维护性。
-
-- 🤖 AI友好设计
-
-全面遵循MCP协议，提供Streamable Http接口，接口定义清晰、响应结构标准化，天然适配大语言模型（LLM）调用逻辑。支持与 Claude、Cursor、LangChain等主流Agent框架对接，助力 AI 助手高效理解与操作设备。
-
-- 📦 高兼容性
-
-全面遵循MCP协议，接口定义清晰、响应结构标准化，天然适配大语言模型（LLM）调用逻辑。支持与Claude、Cursor、LangChain等主流 Agent 框架对接，助力AI助手高效理解与操作设备。
+By connecting to the Yeelight MCP Server, you can use natural language to control smart devices, query device status, execute preset scenes, and more, helping you create a smarter and more natural human-computer interaction experience.
 
 
+## Features
 
+- 💡 Smart Device Control
 
-## 快速开始
-Yeelight MCP Server 支持两种接入方式：**官方远程MCP Server接入** 和 **本地源码接入**。用户可根据自身需求和技术背景，选择适合的方式快速集成与使用。
+Including but not limited to: switch control, brightness adjustment, color and color temperature settings, curtain control, multi-channel device control, etc.
+
+- 🔍 Status Query Capability
+
+Provides real-time device status reading interface, supporting queries for current switch status, brightness, color temperature, color value, online status, and other key information.
+
+- 🌈 Scene Mode Execution
+
+Supports triggering and executing preset scenes, which can be used for lighting linkage, atmosphere creation, and coordinated control of multiple devices.
+
+- 🛠️ Easy to Extend and Integrate
+    - Supports local source code deployment: The open-source code can be deployed locally and run on an intranet, without relying on cloud services, suitable for users or enterprises with higher requirements for data privacy and security.
+    - Supports connecting to the official Yeelight cloud service: You can choose to connect to the Yeelight official cloud platform to achieve remote device control, cross-network access, seamless discovery, and more, enhancing flexibility and maintainability.
+
+- 🤖 AI-Friendly Design
+
+Fully compliant with the MCP protocol, provides Streamable HTTP interface, clear interface definitions, standardized response structures, and is naturally compatible with large language model (LLM) invocation logic. Supports integration with mainstream agent frameworks such as Claude, Cursor, LangChain, helping AI assistants efficiently understand and operate devices.
+
+- 📦 High Compatibility
+
+Fully compliant with the MCP protocol, with clear interface definitions and standardized response structures, naturally compatible with LLM invocation logic. Supports integration with mainstream agent frameworks such as Claude, Cursor, LangChain, helping AI assistants efficiently understand and operate devices.
 
 
 
-#### 📌 前置准备
-在开始接入之前，您需要准备好的`Authorization（访问令牌）`、`Client-Id` 和 `House-Id`信息。
+## Quick Start
+Yeelight MCP Server supports two access methods: **Official Remote MCP Server Access** and **Local Source Code Deployment**. Users can choose the appropriate method for quick integration and use according to their needs and technical background.
 
-- 访问令牌（AccessToken）获取
 
-请参考[易来开放平台文档 §2.1](https://open-console.yeelight.com/commerical-lighting-open-platform-docs.html)获取详细的令牌获取方法。
 
-- houseId的获取
+#### 📌 Prerequisites
+Before starting, you need to prepare the `Authorization (Access Token)`, `Client-Id`, and `House-Id` information.
 
-Yeelight Pro 用户可登录 Yeelight Pro APP，依次进入 【家庭管理】→【选择家庭】，即可查看对应的 houseId：
+- Access Token Acquisition
+
+Please refer to [Yeelight Open Platform Documentation §2.1](https://open-console.yeelight.com/open-platform-docs-en.html) for detailed token acquisition methods.
+
+- HouseId Acquisition
+
+Yeelight Pro users can log in to the Yeelight Pro APP, go to [Home Management] → [Select Home], and view the corresponding houseId:
 
 <p align="center">
-  <img src="readme/images/pro_app_house_id.jpeg" alt="Yeelight Pro APP 查看家庭ID" width="240"/>
+  <img src="readme/images/pro_app_house_id.jpeg" alt="Yeelight Pro APP View Home ID" width="240"/>
 </p>
 
-- clientId获取
+- ClientId Acquisition
 
-clientId是申请访问令牌（AccessToken）时所需的必要参数，具体申请方式同样参考[易来开放平台文档 §2.1](https://open-console.yeelight.com/commerical-lighting-open-platform-docs.html)。
+ClientId is a necessary parameter when applying for an access token (AccessToken). For specific application methods, please also refer to [Yeelight Open Platform Documentation §2.1](https://open-console.yeelight.com/open-platform-docs-en.html).
 
 
-### 🛰️ 方式一：集成Yeelight官方远程MCP Server（推荐）
+### 🛰️ Method 1: Integrate with Yeelight Official Remote MCP Server (Recommended)
 
-对于希望快速接入Yeelight Pro智能设备控制能力的用户，可直接通过MCP协议连接Yeelight官方提供的MCP Streamable HTTP服务。该方式无需本地部署，配置简洁，接入高效。
+For users who want to quickly access Yeelight Pro smart device control capabilities, you can directly connect to the Yeelight official MCP Streamable HTTP service via the MCP protocol. This method does not require local deployment, is simple to configure, and efficient to access.
 
-**官方MCP Server服务地址**
+**Official MCP Server Service Address**
 `https://api.yeelight.com/apis/mcp_server/v1/mcp/`  
 
 
-### 🖥️ 方式二：本地源码部署
+### 🖥️ Method 2: Local Source Code Deployment
 
 
-1. 安装uv
+1. Install uv
 
-👉 参考 [uv 安装指南](https://hellowac.github.io/uv-zh-cn/getting-started/installation/)。
+👉 Refer to the [uv Installation Guide](https://hellowac.github.io/uv-zh-cn/getting-started/installation/).
 
 ```shell 
-# 命令适用于linux、macOS。 Windows安装参考官方安装指南。
+# The command applies to Linux and macOS. For Windows installation, refer to the official installation guide.
 curl -Ls https://astral.sh/uv/install.sh | sh
 ```
 
-2. 克隆源码
+2. Clone the source code
 
 ```shell 
-# 克隆源码
+# Clone the source code
 git clone https://github.com/Justin-Well/yeelight-iot-mcp.git
-# 进入项目目录
+# Enter the project directory
 cd yeelight-iot-mcp
 ```
-3. 创建并激活虚拟环境
+3. Create and activate a virtual environment
 ```shell 
 uv venv .venv
 source .venv/bin/activate
 ```
-4. 安装依赖
+4. Install dependencies
 ```shell 
 uv pip install ./
 ```
-5. 启动服务
+5. Start the service
 ```shell 
-./service.sh start      # 启动服务
-./service.sh status     # 查看服务状态
-./service.sh stop       # 停止服务
+./service.sh start      # Start the service
+./service.sh status     # Check service status
+./service.sh stop       # Stop the service
 ```
 
-### 🧩 客户端配置
+### 🧩 Client Configuration
 
-Yeelight MCP Server 采用 Streamable HTTP 协议 进行接入，目前主流 AI 客户端均已支持基于该协议的 MCP 接口调用。接入时，您只需将 `Authorization`、`Client-Id` 和 `House-Id` 作为请求 Header 传入即可。
+Yeelight MCP Server uses the Streamable HTTP protocol for access. Currently, mainstream AI clients all support MCP interface calls based on this protocol. When connecting, you only need to pass `Authorization`, `Client-Id`, and `House-Id` as request headers.
 
-以下为部分客户端的配置示例，供参考：
-
-
-> 📌 说明
-> - 若使用本地部署，请将 url 替换为实际地址，如 http://{ip}:{port}/mcp/。
-> - 替换 ${...} 中的占位符为您实际的配置信息。
+Below are configuration examples for some clients for your reference:
 
 
-#### Cursor接入
-Cursor MCP配置文件示例：
+> 📌 Note
+> - If using local deployment, please replace the url with the actual address, such as http://{ip}:{port}/mcp/.
+> - Replace the placeholders in ${...} with your actual configuration information.
+
+
+#### Cursor Integration
+Cursor MCP configuration file example:
 ```JSON
 {
   "mcpServers": {
@@ -144,8 +143,8 @@ Cursor MCP配置文件示例：
 ```
 
 
-#### Claude Desktop接入
-Claude Desktop MCP配置文件示例：
+#### Claude Desktop Integration
+Claude Desktop MCP configuration file example:
 ```JSON
 {
   "mcpServers":{
@@ -164,9 +163,9 @@ Claude Desktop MCP配置文件示例：
           "true"
       ],
       "env": {
-          "AUTHORIZATION": "${AUTHORIZATION}", # 替换为实际AUTHORIZATION
-          "CLIENT_ID": "${CLIENT_ID}",         # 替换为实际CLIENT_ID
-          "HOUSE_ID": "${HOUSE_ID}"            # 替换为实际HOUSE_ID
+          "AUTHORIZATION": "${AUTHORIZATION}", # Replace with actual AUTHORIZATION
+          "CLIENT_ID": "${CLIENT_ID}",         # Replace with actual CLIENT_ID
+          "HOUSE_ID": "${HOUSE_ID}"            # Replace with actual HOUSE_ID
       }
     }
   }
@@ -174,36 +173,36 @@ Claude Desktop MCP配置文件示例：
 
 ```
 
-#### Cherry Studio接入
-打开Cherry Studio页面，依次点击 【设置】→【MCP服务器】→【添加服务器】，填写 `Authorization`、`Client-Id` 和 `House-Id` 信息，如下图所示：
+#### Cherry Studio Integration
+Open the Cherry Studio page, click [Settings] → [MCP Servers] → [Add Server], and fill in the `Authorization`, `Client-Id`, and `House-Id` information as shown below:
 <p align="center">
-  <img src="readme/images/cherry_studio_config.jpeg" alt="Yeelight Pro APP 查看家庭ID" width="1000"/>
+  <img src="readme/images/cherry_studio_config_en.jpeg" alt="Yeelight Pro APP View Home ID" width="1000"/>
 </p>
 
 
 
-## 使用示例
+## Usage Example
 
-以下示例展示了将Yeelight MCP Server接入到主流AI客户端后，通过自然语言与Yeelight Pro或商照智能设备进行便捷互动。
+The following examples show how to interact conveniently with Yeelight Pro or commercial smart devices through natural language after connecting Yeelight MCP Server to mainstream AI clients.
 
 <div align="center">
   <table width="70%">
     <tr>
       <td align="center">
         Claude Desktop<br>
-        <img src="readme/images/claude_desktop_demo1.jpeg" width="100%"/>
+        <img src="readme/images/claude_desktop_demo1_en.jpeg" width="80%"/>
       </td>
     </tr>
     <tr>
       <td align="center">
         Cursor<br>
-        <img src="readme/images/cursor_demo1.jpeg" width="100%"/>
+        <img src="readme/images/cursor_demo1_en.jpeg" width="80%"/>
       </td>
     </tr>
     <tr>
       <td align="center">
         Cherry Studio<br>
-        <img src="readme/images/cherry_studio_demo1.jpeg" width="100%"/>
+        <img src="readme/images/cherry_studio_demo1_en.jpeg" width="100%"/>
       </td>
     </tr>
   </table>
