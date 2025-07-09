@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://cn.yeelight.com/" target="_blank">
-    <img src="images/yeelight_logo1.png" alt="Yeelight MCP Server Logo" height="35"/>
+    <img src="readme/images/yeelight_logo1.png" alt="Yeelight MCP Server Logo" height="35"/>
   </a>
 </p>
 
