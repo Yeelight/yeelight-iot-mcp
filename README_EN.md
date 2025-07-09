@@ -1,11 +1,11 @@
 <p align="center">
   <a href="https://cn.yeelight.com/" target="_blank">
-    <img src="images/yeelight_logo1.png" alt="Yeelight MCP Server Logo" height="35"/>
+    <img src="readme/images/yeelight_logo1.png" alt="Yeelight MCP Server Logo" height="35"/>
   </a>
 </p>
 
 <p align="center">
-English | [中文](/readme/README.md) 
+  English | <a href="/README.md">中文</a>
 </p>
 
 # Yeelight MCP Server
@@ -61,7 +61,7 @@ Please refer to [Yeelight Open Platform Documentation §2.1](https://open-consol
 Yeelight Pro users can log in to the Yeelight Pro APP, go to [Home Management] → [Select Home], and view the corresponding houseId:
 
 <p align="center">
-  <img src="images/pro_app_house_id.jpeg" alt="Yeelight Pro APP View Home ID" width="240"/>
+  <img src="readme/images/pro_app_house_id.jpeg" alt="Yeelight Pro APP View Home ID" width="240"/>
 </p>
 
 - ClientId Acquisition
@@ -176,7 +176,7 @@ Claude Desktop MCP configuration file example:
 #### Cherry Studio Integration
 Open the Cherry Studio page, click [Settings] → [MCP Servers] → [Add Server], and fill in the `Authorization`, `Client-Id`, and `House-Id` information as shown below:
 <p align="center">
-  <img src="images/cherry_studio_config_en.jpeg" alt="Yeelight Pro APP View Home ID" width="1000"/>
+  <img src="readme/images/cherry_studio_config_en.jpeg" alt="Yeelight Pro APP View Home ID" width="1000"/>
 </p>
 
 
@@ -190,19 +190,19 @@ The following examples show how to interact conveniently with Yeelight Pro or co
     <tr>
       <td align="center">
         Claude Desktop<br>
-        <img src="images/claude_desktop_demo1_en.jpeg" width="80%"/>
+        <img src="readme/images/claude_desktop_demo1_en.jpeg" width="80%"/>
       </td>
     </tr>
     <tr>
       <td align="center">
         Cursor<br>
-        <img src="images/cursor_demo1_en.jpeg" width="80%"/>
+        <img src="readme/images/cursor_demo1_en.jpeg" width="80%"/>
       </td>
     </tr>
     <tr>
       <td align="center">
         Cherry Studio<br>
-        <img src="images/cherry_studio_demo1_en.jpeg" width="100%"/>
+        <img src="readme/images/cherry_studio_demo1_en.jpeg" width="100%"/>
       </td>
     </tr>
   </table>
