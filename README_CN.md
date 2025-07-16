@@ -123,7 +123,7 @@ Yeelight MCP Server 采用 Streamable HTTP 协议 进行接入，目前主流 AI
 
 > 📌 说明
 > - 若使用本地部署，请将 url 替换为实际地址，如 http://{ip}:{port}/mcp/。
-> - 替换 ${...} 中的占位符为您实际的配置信息。
+> - 替换 <...> 中的占位符为您实际的配置信息。
 
 
 #### Cursor接入
@@ -134,9 +134,9 @@ Cursor MCP配置文件示例：
     "yeelight-remote-iot-mcp-server": {
       "url": "https://api.yeelight.com/apis/mcp_server/v1/mcp/", 
       "headers": {
-        "Authorization": "${Authorization}",
-        "Client-Id": "${Client_Id}",
-        "House-Id": "${HOUSEI_Id}"
+        "Authorization": "<YOUR AUTHORIZATION>",
+        "Client-Id": "<YOUR CLIENT_ID>",
+        "House-Id": "<YOUR HOUSE_ID>"
       }
     }
   }
@@ -164,9 +164,9 @@ Claude Desktop MCP配置文件示例：
           "true"
       ],
       "env": {
-          "AUTHORIZATION": "${AUTHORIZATION}", # 替换为实际AUTHORIZATION
-          "CLIENT_ID": "${CLIENT_ID}",         # 替换为实际CLIENT_ID
-          "HOUSE_ID": "${HOUSE_ID}"            # 替换为实际HOUSE_ID
+          "AUTHORIZATION": "<YOUR AUTHORIZATION>", 
+          "CLIENT_ID": "<YOUR CLIENT_ID>",
+          "HOUSE_ID": "<YOUR HOUSE_ID>"
       }
     }
   }

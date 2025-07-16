@@ -122,7 +122,7 @@ Below are configuration examples for some clients for your reference:
 
 > 📌 Note
 > - If using local deployment, please replace the url with the actual address, such as http://{ip}:{port}/mcp/.
-> - Replace the placeholders in ${...} with your actual configuration information.
+> - Replace the placeholders in <...> with your actual configuration information.
 
 
 #### Cursor Integration
@@ -133,9 +133,9 @@ Cursor MCP configuration file example:
     "yeelight-remote-iot-mcp-server": {
       "url": "https://api.yeelight.com/apis/mcp_server/v1/mcp/", 
       "headers": {
-        "Authorization": "${Authorization}",
-        "Client-Id": "${Client_Id}",
-        "House-Id": "${HOUSEI_Id}"
+        "Authorization": "<YOUR AUTHORIZATION>",
+        "Client-Id": "<YOUR CLIENT_ID>",
+        "House-Id": "<YOUR HOUSEI_ID>"
       }
     }
   }
@@ -163,9 +163,9 @@ Claude Desktop MCP configuration file example:
           "true"
       ],
       "env": {
-          "AUTHORIZATION": "${AUTHORIZATION}", # Replace with actual AUTHORIZATION
-          "CLIENT_ID": "${CLIENT_ID}",         # Replace with actual CLIENT_ID
-          "HOUSE_ID": "${HOUSE_ID}"            # Replace with actual HOUSE_ID
+          "AUTHORIZATION": "<YOUR AUTHORIZATION>",
+          "CLIENT_ID": "<YOUR CLIENT_ID>",
+          "HOUSE_ID": "<YOUR HOUSE_ID>"
       }
     }
   }
@@ -183,7 +183,7 @@ Open the Cherry Studio page, click [Settings] → [MCP Servers] → [Add Server]
 
 ## Usage Example
 
-The following examples show how to interact conveniently with Yeelight Pro or commercial smart devices through natural language after connecting Yeelight MCP Server to mainstream AI clients.
+The following examples show how to interact conveniently with Yeelight Pro or commercial lighting smart devices through natural language after connecting Yeelight MCP Server to mainstream AI clients.
 
 <div align="center">
   <table width="70%">
