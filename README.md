@@ -74,7 +74,7 @@ ClientId is a necessary parameter when applying for an access token (AccessToken
 For users who want to quickly access Yeelight Pro smart device control capabilities, you can directly connect to the Yeelight official MCP Streamable HTTP service via the MCP protocol. This method does not require local deployment, is simple to configure, and efficient to access.
 
 **Official MCP Server Service Address**
-`https://api.yeelight.com/apis/mcp_server/v1/mcp/`  
+`https://api.yeelight.com/apis/mcp_server/v1/mcp`  
 
 
 ### 🖥️ Method 2: Local Source Code Deployment
@@ -131,7 +131,7 @@ Cursor MCP configuration file example:
 {
   "mcpServers": {
     "yeelight-remote-iot-mcp-server": {
-      "url": "https://api.yeelight.com/apis/mcp_server/v1/mcp/", 
+      "url": "https://api.yeelight.com/apis/mcp_server/v1/mcp", 
       "headers": {
         "Authorization": "<YOUR AUTHORIZATION>",
         "Client-Id": "<YOUR CLIENT_ID>",
@@ -152,7 +152,7 @@ Claude Desktop MCP configuration file example:
       "command": "npx",
       "args": [
           "mcp-remote",
-          "https://api.yeelight.com/apis/mcp_server/v1/mcp/",
+          "https://api.yeelight.com/apis/mcp_server/v1/mcp",
           "--header",
           "Authorization:${AUTHORIZATION}",
           "--header",
