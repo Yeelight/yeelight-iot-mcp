@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+logs/
+*.egg-info/
+actions.log
+uvicorn.pid
+.DS_Store
