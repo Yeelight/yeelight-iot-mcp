@@ -14,16 +14,15 @@ how you integrate with Yeelight; they can also be combined.
 
 | Project | Role and capabilities | Best for | GitHub |
 | --- | --- | --- | --- |
-| Yeelight AI CLI | Unified terminal workspace and MCP client for Cloud, Metadata, and LAN services, with local profiles, safe shortcuts, diagnostics, and client configuration. | People, scripts, and CI that want one command-line entry point. | [Yeelight/yeelight-cli](https://github.com/Yeelight/yeelight-cli) |
-| `yeelight-home` | Local semantic Runtime CLI for home queries, control, configuration, diagnostics, product knowledge, and the structured `invoke --stdin` contract. | Skills, generated apps, and local automation that need a stable execution layer. | [Yeelight/yeelight-home](https://github.com/Yeelight/yeelight-home) |
+| Yeelight Home | Recommended local semantic Runtime with one structured `invoke --stdin` boundary for queries, control, scenes, automations, lighting design, diagnostics, product knowledge, and generated apps. | Agent hosts, local automation, and applications that need a stable and policy-aware smart-home execution layer. | [Yeelight/yeelight-home](https://github.com/Yeelight/yeelight-home) |
+| Yeelight Smart Home Skills | Official Agent Skills: Smart Home turns natural language into safe Runtime operations; PRO App Builder generates focused local apps from proven Runtime capabilities. | Agent hosts that need conversational smart-home workflows or app generation. | [Yeelight/yeelight-smart-home-skills](https://github.com/Yeelight/yeelight-smart-home-skills) |
+| Yeelight AI CLI | Unified terminal workspace and MCP client for Cloud, Metadata, and LAN services, with local profiles, safe shortcuts, diagnostics, scripting, and AI client configuration. | People, scripts, and CI that want one general MCP and automation entry point. | [Yeelight/yeelight-cli](https://github.com/Yeelight/yeelight-cli) |
 | Yeelight IoT MCP | Hosted or self-hosted Streamable HTTP MCP server for topology, live state, device control, and scene execution. | MCP clients that need direct IoT discovery and control. | [Yeelight/yeelight-iot-mcp](https://github.com/Yeelight/yeelight-iot-mcp) |
 | Yeelight Metadata MCP | Hosted or self-hosted Streamable HTTP MCP server for guarded home, room, group, panel, scene, automation, favorite, and account metadata workflows. | MCP clients that need metadata inspection and management. | [Yeelight/yeelight-metadata-mcp](https://github.com/Yeelight/yeelight-metadata-mcp) |
-| Yeelight Smart Home Skills | Official Agent Skills: Smart Home translates natural language into safe `yeelight-home` operations, while PRO App Builder generates local smart-home apps from proven Runtime capabilities. | Agent hosts that need conversational smart-home workflows or app generation. | [Yeelight/yeelight-smart-home-skills](https://github.com/Yeelight/yeelight-smart-home-skills) |
 
-Typical paths: terminal users and scripts -> `yeelight-ai`; MCP clients -> IoT MCP
-and/or Metadata MCP; agent hosts -> Yeelight Smart Home Skill -> `yeelight-home`.
-PRO App Builder also uses proven `yeelight-home` capabilities when generating
-local applications.
+Yeelight Home also provides system credential storage, local QR login, secret-redacted diagnostics, preview and validation, caller confirmation and Runtime policy/readback behavior, local memory and recommendation support, operation lessons, and machine-readable intent schema/explanations. Cross-platform binaries are distributed through GitHub Releases, npm, and supported package managers.
+
+Typical paths: smart-home agents and generated apps -> Skills -> Yeelight Home; terminal users and scripts -> Yeelight AI CLI; MCP clients -> IoT MCP and/or Metadata MCP.
 
 ## Capabilities
 
