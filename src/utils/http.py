@@ -1,9 +1,6 @@
 import httpx
-import logging
 from typing import Any, Dict, Optional
-
-logger = logging.getLogger("utils.http")
-
+from log.logger import logger
 class HttpClient:
     """
     基础HTTP工具类，支持GET和POST请求，自动处理异常和日志。

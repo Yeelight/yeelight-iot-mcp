@@ -1,11 +1,21 @@
 [project]
-name = "yeelight-mcp"
+name = "yeelight-iot-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "Official Yeelight IoT MCP server for device discovery, state, control, and scene execution"
 readme = "README.md"
 requires-python = ">=3.10"
+license = "Apache-2.0"
 dependencies = [
     "uvicorn",
     "httpx>=0.28.1",
     "mcp[cli]>=1.9.4",
+    "nacos-sdk-python==2.0.6",
 ]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+[project.urls]
+Homepage = "https://github.com/Yeelight/yeelight-iot-mcp"
+Repository = "https://github.com/Yeelight/yeelight-iot-mcp"
+Issues = "https://github.com/Yeelight/yeelight-iot-mcp/issues"

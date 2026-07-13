@@ -49,6 +49,7 @@ class RoomsResponse(BaseMessage):
     pageSize: int = Field(..., description="每页数量")
     rows: List[Room] = Field(default_factory=list, description="房间列表")
     pageNum: int = Field(..., description="页码")
+    nextCursor: Optional[str] = Field(None, description="下一页游标。为空表示没有下一页")
 
 class Area(BaseModel):
     roomIds: List[str] = Field(default_factory=list, description="区域包含的房间ID列表")
@@ -63,6 +64,7 @@ class AreasResponse(BaseMessage):
     pageSize: int = Field(..., description="每页数量")
     rows: List[Area] = Field(default_factory=list, description="区域列表")
     pageNum: int = Field(..., description="页码")
+    nextCursor: Optional[str] = Field(None, description="下一页游标。为空表示没有下一页")
 
 class Scene(BaseModel):
     icon: Optional[str] = Field(None, description="情景图标")
@@ -74,6 +76,7 @@ class ScenesResponse(BaseMessage):
     pageSize: int = Field(..., description="情景数量")
     rows: List[Scene] = Field(default_factory=list, description="情景列表")
     pageNum: int = Field(..., description="页码")
+    nextCursor: Optional[str] = Field(None, description="下一页游标。为空表示没有下一页")
 
 class DeviceEvent(BaseModel):
     name: str = Field(..., description="事件名称")
@@ -104,6 +107,7 @@ class DevicesResponse(BaseMessage):
     pageSize: int = Field(..., description="每页数量")
     rows: List[Device] = Field(default_factory=list, description="设备列表")
     pageNum: int = Field(..., description="页码")
+    nextCursor: Optional[str] = Field(None, description="下一页游标。为空表示没有下一页")
 
 class CommandType(str, Enum):
     set = "set"
@@ -125,8 +129,32 @@ class ControlNodeRequest(BaseModel):
     nodeId: int = Field(..., description="节点ID。节点包括设备、设备组、房间、区域、家庭、情景灯。可根据nodeType区分")
     nodeType: int = Field(..., description="节点类型。1：房间；2：设备；3：区域；4：设备组；5：家庭（项目）；")
     command: Command = Field(..., description="具体控制指令。例如：set：设值,可针对任意属性类型；toggle：反转、切换（针对boolean类型属性，例如设备的开关），adjust：调整（针对数值类型，基于当前值进行增减）")
+    dryRun: bool = Field(True, description="是否只返回执行计划，不调用真实控制接口")
+    confirmSideEffect: bool = Field(False, description="真实执行控制前必须显式确认副作用")
+    reason: Optional[str] = Field(None, description="真实执行原因，便于调用方记录操作意图")
 
 
+class ControlPlan(BaseModel):
+    method: str = Field(..., description="HTTP 方法")
+    url: str = Field(..., description="待调用的云端控制接口")
+    headers: dict = Field(default_factory=dict, description="脱敏后的请求 Header")
+    body: Optional[Any] = Field(None, description="待发送的请求体")
+
+
+class ControlExecutionResult(BaseModel):
+    ok: bool = Field(..., description="是否允许或完成执行")
+    dryRun: bool = Field(..., description="是否为 dryRun")
+    code: str = Field(..., description="结果编码")
+    message: str = Field(..., description="结果说明")
+    plan: ControlPlan = Field(..., description="执行计划")
+    response: Optional[Any] = Field(None, description="真实执行响应")
+
+
+class ExecuteSceneRequest(BaseModel):
+    sceneId: str = Field(..., description="情景ID")
+    dryRun: bool = Field(True, description="是否只返回执行计划，不调用真实执行接口")
+    confirmSideEffect: bool = Field(False, description="真实执行情景前必须显式确认副作用")
+    reason: Optional[str] = Field(None, description="真实执行原因，便于调用方记录操作意图")
 
 
 

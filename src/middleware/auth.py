@@ -2,6 +2,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from config.config import settings
+from utils.auth import normalize_authorization_header
 import httpx
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -9,7 +10,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
     async def check_token_valid(self, token):
         url = f"{settings.API_BASE_URL}/apis/account/user/info"
         async with httpx.AsyncClient(timeout=settings.HTTP_TIMEOUT) as client:
-            response = await client.get(url, headers={"authorization": f"Bearer {token}"})
+            response = await client.get(url, headers={"authorization": normalize_authorization_header(token)})
         if response.json().get("code") != "200":
             return {"error": response.json()}
         return True

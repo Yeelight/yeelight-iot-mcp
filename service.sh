@@ -17,16 +17,16 @@ start() {
     fi
     cd "$PROJECT_DIR"
     source "$VENV_DIR/bin/activate"
-    nohup $UVICORN_CMD > "$LOG_FILE" 2>&1 &
-    echo $! > "$PID_FILE"
-    echo "Service started (PID $(cat $PID_FILE)) on $APP_NAME at port $PORT"
+    $UVICORN_CMD
+    # echo $! > "$PID_FILE"
+    # echo "Service started (PID $(cat $PID_FILE)) on $APP_NAME at port $PORT"
 }
 
 stop() {
     if [ -f "$PID_FILE" ]; then
         PID=$(cat "$PID_FILE")
         if kill -0 $PID 2>/dev/null; then
-            kill $PID
+            kill TERM "$PID"
             echo "Service stopped"
         else
             echo "No running service found with PID $PID"

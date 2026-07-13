@@ -5,6 +5,9 @@ from utils.http import HttpClient
 from config.config import settings
 from typing import Annotated
 from pydantic import Field
+from utils.auth import normalize_authorization_header
+from service.pagination import append_next_cursor, resolve_page
+from service.safety import build_control_plan, find_blocked_control_prop_name, is_success_response, normalize_control_body, reject_blocked_control_property, require_side_effect_confirmation
 
 
 http_client = HttpClient(settings.HTTP_TIMEOUT)
@@ -38,6 +41,8 @@ control_node_tool_desc = f"""
 ## 控制属性说明
 - 可以通过其他工具获取到节点支持的属性定义列表，表示该节点所支持的属性。所控制节点的属性必须在该节点的属性定义列表中存在，否则会发生错误。
 - 调用该工具控制节点属性时，传入的属性值需符合属性定义中的类型、取值范围、枚举值等的要求。
+- 默认 dryRun=true，只返回执行计划，不调用真实控制接口。
+- 如需真实执行，必须显式传 dryRun=false 且 confirmSideEffect=true。
 
 ### 相关属性信息列表
 下面是一些属性的定义，可能会与其他工具中返回的属性定义冗余，供参考。
@@ -55,6 +60,8 @@ control_node_tool_desc = f"""
 execute_scene_tool_desc = """
 # 工具用途：执行情景（场景、模式）。
 - 在执行情景（场景、模式）前，必须确保已获取到对应的情景ID。由于用户通常提供的是情景名称，因此请务必先通过相应的工具获取情景ID，再使用该ID执行情景操作。
+- 默认 dryRun=true，只返回执行计划，不调用真实执行接口。
+- 如需真实执行，必须显式传 dryRun=false 且 confirmSideEffect=true。
 """
 
 def get_auth_info(context: Context) -> tuple[str, str, str]:
@@ -65,7 +72,7 @@ def get_auth_info(context: Context) -> tuple[str, str, str]:
     authorization = request.headers.get(settings.AUTHORIZATION_HEADER_KEY)
     client_id = request.headers.get(settings.CLIENT_ID_HEADER_KEY)
     house_id = request.headers.get(settings.HOUSE_ID_HEADER_KEY)
-    return f"Bearer {authorization}", client_id, house_id
+    return normalize_authorization_header(authorization), client_id, house_id
 
 
 def register_house_tool(mcp:FastMCP):
@@ -87,14 +94,19 @@ def register_area_tool(mcp:FastMCP):
         name="get_areas",
         description="获取当前用户家庭（项目）下所有的区域",
     )
-    def get_areas(context: Context) -> AreasResponse:
+    def get_areas(
+        context: Context,
+        cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
+        limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
+    ) -> AreasResponse:
         authorization, client_id, house_id = get_auth_info(context)
-        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/areas/r/list/1/{settings.FETCH_NODES_MAX_SIZE}"
+        page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
+        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/areas/r/list/{page_no}/{page_size}"
 
         response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
         if response.get("code") != "200":
-            return AreasResponse(**{"isError":True, "errorMessage":response.get("msg")})
-        return AreasResponse(**response.get("data"))
+            return AreasResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
+        return AreasResponse(**append_next_cursor(response.get("data")))
 
 
 def register_room_tool(mcp:FastMCP):
@@ -102,13 +114,18 @@ def register_room_tool(mcp:FastMCP):
         name="get_rooms",
         description="获取当前用户家庭（项目）下所有的房间",
     )
-    def get_rooms(context: Context) -> RoomsResponse:
+    def get_rooms(
+        context: Context,
+        cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
+        limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
+    ) -> RoomsResponse:
         authorization, client_id, house_id = get_auth_info(context)
-        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/rooms/r/list/1/{settings.FETCH_NODES_MAX_SIZE}"
+        page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
+        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/rooms/r/list/{page_no}/{page_size}"
         response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
         if response.get("code") != "200":
-            return RoomsResponse(**{"isError":True, "errorMessage":response.get("msg")})
-        return RoomsResponse(**response.get("data"))
+            return RoomsResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
+        return RoomsResponse(**append_next_cursor(response.get("data")))
 
 
 def register_device_tool(mcp:FastMCP):
@@ -116,16 +133,22 @@ def register_device_tool(mcp:FastMCP):
         name="get_devices",
         description="获取当前用户家庭（项目）下所有的设备或者获取某个房间下的设备",
     )
-    def get_devices(context: Context, roomId: Annotated[Optional[str], Field(None, description="房间ID。若不传此参数，则查询当前用户家庭（项目）下所有的设备")]) -> DevicesResponse:
+    def get_devices(
+        context: Context,
+        roomId: Annotated[Optional[str], Field(None, description="房间ID。若不传此参数，则查询当前用户家庭（项目）下所有的设备")] = None,
+        cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
+        limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
+    ) -> DevicesResponse:
         authorization, client_id, house_id = get_auth_info(context)
+        page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
         if roomId:
-            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/devices/r/list/1/{settings.FETCH_NODES_MAX_SIZE}?roomId={roomId}"
+            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/devices/r/list/{page_no}/{page_size}?roomId={roomId}"
         else:
-            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/devices/r/list/1/{settings.FETCH_NODES_MAX_SIZE}"
+            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/devices/r/list/{page_no}/{page_size}"
         response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
         if response.get("code") != "200":
-            return DevicesResponse(**{"isError":True, "errorMessage":response.get("msg")})
-        return DevicesResponse(**response.get("data"))
+            return DevicesResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
+        return DevicesResponse(**append_next_cursor(response.get("data")))
 
 
 def register_group_tool(mcp:FastMCP):
@@ -133,16 +156,22 @@ def register_group_tool(mcp:FastMCP):
         name="get_groups",
         description="获取当前用户家庭（项目）下所有的设备组或者获取某个房间下的设备组（设备组：相同设备类型的设备可以组成设备组，例如灯组、开关组灯）",
     )
-    def get_groups(context: Context, roomId: Annotated[Optional[str], Field(None, description="房间ID。若不传此参数，则查询当前用户家庭（项目）下所有的设备组")]) -> DevicesResponse:
+    def get_groups(
+        context: Context,
+        roomId: Annotated[Optional[str], Field(None, description="房间ID。若不传此参数，则查询当前用户家庭（项目）下所有的设备组")] = None,
+        cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
+        limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
+    ) -> DevicesResponse:
         authorization, client_id, house_id = get_auth_info(context)
+        page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
         if roomId:
-            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/groups/r/list/1/{settings.FETCH_NODES_MAX_SIZE}?roomId={roomId}"
+            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/groups/r/list/{page_no}/{page_size}?roomId={roomId}"
         else:
-            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/groups/r/list/1/{settings.FETCH_NODES_MAX_SIZE}"
+            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/groups/r/list/{page_no}/{page_size}"
         response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
         if response.get("code") != "200":
-            return DevicesResponse(**{"isError":True, "errorMessage":response.get("msg")})
-        return DevicesResponse(**response.get("data"))
+            return DevicesResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
+        return DevicesResponse(**append_next_cursor(response.get("data")))
 
 
 def register_scene_tool(mcp:FastMCP):
@@ -150,20 +179,25 @@ def register_scene_tool(mcp:FastMCP):
         name="get_scenes",
         description="获取当前用户家庭（项目）下所有的情景（场景、模式）",
     )
-    def get_scenes(context: Context) -> ScenesResponse:
+    def get_scenes(
+        context: Context,
+        cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
+        limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
+    ) -> ScenesResponse:
         authorization, client_id, house_id = get_auth_info(context)
-        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/scenes/r/list/1/{settings.FETCH_NODES_MAX_SIZE}"
+        page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
+        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/scenes/r/list/{page_no}/{page_size}"
         response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
         if response.get("code") != "200":
-            return ScenesResponse(**{"isError":True, "errorMessage":response.get("msg")})
-        return ScenesResponse(**response.get("data"))
+            return ScenesResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
+        return ScenesResponse(**append_next_cursor(response.get("data")))
     
 def register_control_node_tool(mcp:FastMCP):
     @mcp.tool(
         name="control_node",
         description=control_node_tool_desc
     )
-    def control_node(context: Context, controlRequest: Annotated[ControlNodeRequest, Field(description="节点控制请求体，包含节点ID、节点类型和控制指令等信息")]):
+    def control_node(context: Context, controlRequest: Annotated[ControlNodeRequest, Field(description="节点控制请求体，包含节点ID、节点类型、控制指令和 dryRun/confirmSideEffect 选项")]) -> ControlExecutionResult:
         authorization, client_id, house_id = get_auth_info(context)
         node_type = controlRequest.nodeType
         node_id = controlRequest.nodeId
@@ -173,8 +207,17 @@ def register_control_node_tool(mcp:FastMCP):
             "authorization": authorization,
             "clientId": client_id
         }
-        response = http_client.post(url, headers=headers, json=command.model_dump())
-        return response
+        body = normalize_control_body(command.model_dump())
+        plan = build_control_plan("POST", url, headers, body)
+        blocked_prop_name = find_blocked_control_prop_name(body)
+        if blocked_prop_name:
+            return reject_blocked_control_property(blocked_prop_name, controlRequest.dryRun, plan)
+        guard_result = require_side_effect_confirmation(controlRequest.dryRun, controlRequest.confirmSideEffect, plan)
+        if guard_result is not None:
+            return guard_result
+        response = http_client.post(url, headers=headers, json=body)
+        ok = is_success_response(response)
+        return ControlExecutionResult(ok=ok, dryRun=False, code="EXECUTED" if ok else "EXECUTE_FAILED", message="真实控制接口已调用" if ok else "真实控制接口返回失败", plan=plan, response=response)
 
 
 def register_execute_scene_tool(mcp:FastMCP):
@@ -182,15 +225,20 @@ def register_execute_scene_tool(mcp:FastMCP):
         name="execute_scene",
         description=execute_scene_tool_desc
     )
-    def execute_scene(context: Context, scene_id: Annotated[str, Field(description="情景ID")]):
+    def execute_scene(context: Context, request: Annotated[ExecuteSceneRequest, Field(description="执行情景请求，包含 sceneId 和 dryRun/confirmSideEffect 选项")]) -> ControlExecutionResult:
         authorization, client_id, house_id = get_auth_info(context)
-        url = f"{settings.API_BASE_URL}/v1/open/control/house/{house_id}/control/w/scenes/{scene_id}"
+        url = f"{settings.API_BASE_URL}/v1/open/control/house/{house_id}/control/w/scenes/{request.sceneId}"
         headers = {
             "authorization": authorization,
             "clientId": client_id
         }
+        plan = build_control_plan("POST", url, headers)
+        guard_result = require_side_effect_confirmation(request.dryRun, request.confirmSideEffect, plan)
+        if guard_result is not None:
+            return guard_result
         response = http_client.post(url, headers=headers)
-        return response
+        ok = is_success_response(response)
+        return ControlExecutionResult(ok=ok, dryRun=False, code="EXECUTED" if ok else "EXECUTE_FAILED", message="真实执行情景接口已调用" if ok else "真实执行情景接口返回失败", plan=plan, response=response)
 
 
 def register_tools(mcp:FastMCP):
@@ -202,4 +250,3 @@ def register_tools(mcp:FastMCP):
     register_control_node_tool(mcp)
     register_scene_tool(mcp)
     register_execute_scene_tool(mcp)
-
