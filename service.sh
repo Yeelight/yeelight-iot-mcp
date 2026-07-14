@@ -5,9 +5,20 @@ PID_FILE="$PROJECT_DIR/uvicorn.pid"
 LOG_FILE="$PROJECT_DIR/server.log"
 
 APP_NAME="streamable_http_app"
-PORT=9000
-HOST="0.0.0.0"
-WORKERS=4
+PORT="${YEELIGHT_IOT_MCP_PORT:-${IOT_MCP_PORT:-${APP_MCP_PORT:-9000}}}"
+RUNTIME_ENV="${YEELIGHT_IOT_MCP_RUNTIME_ENV:-${IOT_MCP_RUNTIME_ENV:-${APP_MCP_RUNTIME_ENV:-prod}}}"
+if [ -n "$YEELIGHT_IOT_MCP_BIND_HOST" ]; then
+    HOST="$YEELIGHT_IOT_MCP_BIND_HOST"
+elif [ -n "$IOT_MCP_BIND_HOST" ]; then
+    HOST="$IOT_MCP_BIND_HOST"
+elif [ -n "$APP_MCP_BIND_HOST" ]; then
+    HOST="$APP_MCP_BIND_HOST"
+elif [ "$RUNTIME_ENV" = "local" ] || [ "$RUNTIME_ENV" = "test" ]; then
+    HOST="127.0.0.1"
+else
+    HOST="0.0.0.0"
+fi
+WORKERS="${YEELIGHT_IOT_MCP_WORKERS:-${IOT_MCP_WORKERS:-4}}"
 
 start() {
     UVICORN_CMD="$VENV_DIR/bin/uvicorn main:$APP_NAME --host $HOST --port $PORT --workers $WORKERS"
@@ -73,4 +84,4 @@ case "$1" in
         echo "Usage: $0 {start|stop|restart|status} [streamable_http|sse]"
         exit 1
         ;;
-esac 
+esac
