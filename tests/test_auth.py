@@ -50,6 +50,47 @@ def configured_middleware(monkeypatch, *, runtime_env="prod", bind_host="0.0.0.0
     return middleware
 
 
+def test_first_pro_house_uses_post_and_pro_business_type(monkeypatch):
+    calls = []
+
+    class Response:
+        @staticmethod
+        def json():
+            return {"code": "200", "data": [{"houseId": "first-pro-house"}]}
+
+    class AsyncClient:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return None
+
+        async def get(self, *args, **kwargs):
+            raise AssertionError("Pro 家庭发现必须使用 POST")
+
+        async def post(self, url, *, headers, json):
+            calls.append({"url": url, "headers": headers, "json": json})
+            return Response()
+
+    monkeypatch.setattr(
+        "middleware.auth.httpx.AsyncClient",
+        lambda **kwargs: AsyncClient(),
+    )
+    middleware = configured_middleware(monkeypatch)
+
+    house_id = asyncio.run(middleware.resolve_first_house(
+        "Bearer token",
+        "https://api.yeelight.com",
+    ))
+
+    assert house_id == "first-pro-house"
+    assert calls == [{
+        "url": "https://api.yeelight.com/apis/iot/v1/house/r/list",
+        "headers": {"authorization": "Bearer token", "bizType": "0"},
+        "json": {},
+    }]
+
+
 def test_header_bundle_uses_jwt_region_client_id_and_first_pro_house(monkeypatch):
     middleware = configured_middleware(monkeypatch)
     calls = []

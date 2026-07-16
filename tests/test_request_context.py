@@ -38,9 +38,11 @@ def test_upstream_headers_allow_validated_opaque_tokens_without_client_id():
     }
 
 
-def test_first_pro_house_supports_array_and_rows_payloads():
+def test_first_pro_house_supports_known_list_wrappers():
     assert first_pro_house_id({"code": "200", "data": [{"houseId": 1001}]}) == "1001"
     assert first_pro_house_id({"success": True, "data": {"rows": [{"id": "house-2"}]}}) == "house-2"
+    assert first_pro_house_id({"success": True, "data": {"list": [{"houseId": "house-3"}]}}) == "house-3"
+    assert first_pro_house_id({"success": True, "data": {"houseList": [{"value": "house-4"}]}}) == "house-4"
 
 
 def test_first_pro_house_rejects_failed_or_empty_payloads():

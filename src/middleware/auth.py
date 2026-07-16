@@ -35,9 +35,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
         url = f"{api_base_url}/apis/iot/v1/house/r/list"
         try:
             async with httpx.AsyncClient(timeout=settings.HTTP_TIMEOUT) as client:
-                response = await client.get(
+                response = await client.post(
                     url,
                     headers={"authorization": authorization, "bizType": "0"},
+                    json={},
                 )
             return first_pro_house_id(response.json())
         except Exception:

@@ -38,8 +38,15 @@ def first_pro_house_id(payload: Any) -> str | None:
     data = payload.get("data")
     if isinstance(data, list):
         rows = data
-    elif isinstance(data, dict) and isinstance(data.get("rows"), list):
-        rows = data["rows"]
+    elif isinstance(data, dict):
+        rows = next(
+            (
+                data[key]
+                for key in ("rows", "list", "houses", "houseList", "data")
+                if isinstance(data.get(key), list)
+            ),
+            [],
+        )
     else:
         rows = []
     for row in rows:
@@ -48,6 +55,8 @@ def first_pro_house_id(payload: Any) -> str | None:
         value = row.get("houseId")
         if value is None:
             value = row.get("id")
+        if value is None:
+            value = row.get("value")
         text = str(value).strip() if value is not None else ""
         if text:
             return text
