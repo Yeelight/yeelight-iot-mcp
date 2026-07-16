@@ -2,6 +2,12 @@
 
 [简体中文](integration.zh-CN.md) | [README](../README.md) | [Usage](usage.md)
 
+Repository access: [GitHub](https://github.com/Yeelight/yeelight-iot-mcp) is
+canonical; use the read-only [Gitee](https://gitee.com/yeelight/yeelight-iot-mcp)
+or [GitCode](https://gitcode.com/Yeelight/yeelight-iot-mcp) mirror when GitHub is
+not reachable, with [GitLab.com](https://gitlab.com/Yeelight/yeelight-iot-mcp)
+as a global fallback.
+
 This guide connects an MCP client to the hosted or local Yeelight IoT MCP
 server. Treat `tools/list` schemas as the current contract.
 

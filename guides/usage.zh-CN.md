@@ -2,6 +2,11 @@
 
 [English](usage.md) | [README](../README.zh-CN.md) | [集成指南](integration.zh-CN.md)
 
+仓库入口：[GitHub](https://github.com/Yeelight/yeelight-iot-mcp) 是规范源；无法
+访问 GitHub 时可使用只读的 [Gitee](https://gitee.com/yeelight/yeelight-iot-mcp)
+或 [GitCode](https://gitcode.com/Yeelight/yeelight-iot-mcp) 国内镜像，
+[GitLab.com](https://gitlab.com/Yeelight/yeelight-iot-mcp) 是全球备用源。
+
 不同 MCP 客户端的工具调用 envelope 可能不同。下面的 JSON 是对应工具的
 arguments 对象。
 

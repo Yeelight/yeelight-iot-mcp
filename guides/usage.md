@@ -2,6 +2,12 @@
 
 [简体中文](usage.zh-CN.md) | [README](../README.md) | [Integration](integration.md)
 
+Repository access: [GitHub](https://github.com/Yeelight/yeelight-iot-mcp) is
+canonical; use the read-only [Gitee](https://gitee.com/yeelight/yeelight-iot-mcp)
+or [GitCode](https://gitcode.com/Yeelight/yeelight-iot-mcp) mirror when GitHub is
+not reachable, with [GitLab.com](https://gitlab.com/Yeelight/yeelight-iot-mcp)
+as a global fallback.
+
 The exact envelope used to call a tool depends on the MCP client. The JSON
 objects below are the arguments for the named tool.
 
