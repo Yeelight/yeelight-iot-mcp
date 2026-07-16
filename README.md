@@ -2,6 +2,17 @@
 
 [简体中文](README.zh-CN.md)
 
+## Official Repository And Mirrors
+
+[GitHub](https://github.com/Yeelight/yeelight-iot-mcp) is the canonical source
+for issues, contributions, CI, and releases. Read-only mirrors are available on
+[Gitee](https://gitee.com/yeelight/yeelight-iot-mcp) and
+[GitCode](https://gitcode.com/Yeelight/yeelight-iot-mcp) for users who cannot
+reach GitHub reliably, with
+[GitLab.com](https://gitlab.com/Yeelight/yeelight-iot-mcp) as an additional
+global fallback. Clone from any reachable source, but report issues and
+contribute changes on GitHub.
+
 > [!IMPORTANT]
 > **New to Yeelight MCP? Start with [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp), not this repository.**
 >

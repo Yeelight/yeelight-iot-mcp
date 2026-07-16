@@ -2,6 +2,15 @@
 
 [English](README.md)
 
+## 官方仓库与国内镜像
+
+[GitHub](https://github.com/Yeelight/yeelight-iot-mcp) 是 Issue、贡献、CI 和发布
+的规范源。国内无法稳定访问 GitHub 时，可使用只读的
+[Gitee 镜像](https://gitee.com/yeelight/yeelight-iot-mcp) 或
+[GitCode 镜像](https://gitcode.com/Yeelight/yeelight-iot-mcp)；
+[GitLab.com](https://gitlab.com/Yeelight/yeelight-iot-mcp) 是额外的全球备用源。
+可以从任一可访问平台克隆代码，但请仍在 GitHub 提交 Issue 和贡献修改。
+
 > [!IMPORTANT]
 > **第一次使用 Yeelight MCP？请从 [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp) 开始，而不是从本项目开始。**
 >
