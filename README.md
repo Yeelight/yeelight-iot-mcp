@@ -87,11 +87,21 @@ For the suite overview and recommended default setup, return to
 
 - Python 3.10 or later for local deployment.
 - `uv` for the documented local workflow.
-- A Yeelight authorization token, client ID, and house ID.
+- A Yeelight Authorization token. Region and House ID are optional.
 
-See the [Yeelight Open Platform documentation](https://open-console.yeelight.com/open-platform-docs-en.html)
-for credential provisioning. Store credentials in the MCP client's secret
-storage. Do not commit them or paste them into logs, prompts, or issue reports.
+### Strongly recommended: authorize with Yeelight AI CLI
+
+```bash
+npm install --global yeelight-ai
+yeelight-ai login --qr
+```
+
+Install [Yeelight AI CLI](https://github.com/Yeelight/yeelight-cli) first. In
+Yeelight Pro APP, tap Home's top-right `+`, choose **MCP Authorization**, and
+scan the terminal QR code exactly as shown in the CLI README's Figure 1. The CLI
+sends the saved Profile as MCP headers. Manual token configuration is an
+advanced compatibility path; never paste a token into an AI chat, prompt, log,
+issue, or repository.
 
 ## Hosted Service
 
@@ -101,16 +111,19 @@ Use the official Streamable HTTP endpoint:
 https://api.yeelight.com/apis/mcp_server/v1/mcp
 ```
 
-Required request headers:
+Required request header:
 
 ```text
 Authorization: <YOUR_AUTHORIZATION>
-Client-Id: <YOUR_CLIENT_ID>
-House-Id: <YOUR_HOUSE_ID>
 ```
 
-The server accepts a raw token or a value prefixed with `Bearer` and normalizes
-it before forwarding requests.
+Optional headers are `Yeelight-Region` and `House-Id`. The server accepts a raw
+token or a value prefixed with `Bearer`. When Region is omitted, a JWT Region
+claim selects the official endpoint before the complete token is validated.
+When House ID is omitted, the server selects the first Pro home in that Region.
+Users never configure a Client ID; IoT upstream calls derive it from the
+validated JWT when required, falling back to `dev` in the development Region
+and `iot-app` in `cn`, `sg`, `us`, or `eu`.
 
 ## Local Development
 
@@ -119,6 +132,7 @@ git clone https://github.com/Yeelight/yeelight-iot-mcp.git
 cd yeelight-iot-mcp
 
 uv sync --extra test
+YEELIGHT_IOT_MCP_RUNTIME_ENV=local \
 YEELIGHT_IOT_MCP_NACOS_ENABLED=false \
 PYTHONPATH=src \
 uv run uvicorn main:streamable_http_app --host 127.0.0.1 --port 9000
@@ -126,6 +140,9 @@ uv run uvicorn main:streamable_http_app --host 127.0.0.1 --port 9000
 
 The local MCP URL is `http://127.0.0.1:9000/mcp`. Local deployment still uses
 the same Yeelight cloud credentials and APIs; it is not an offline gateway.
+When no Authorization header is present, local/test loopback deployment can
+read the Cloud Profile saved by `yeelight-ai login --qr`. Remote or public
+deployments cannot read a user's local file and still require request headers.
 Nacos registration is disabled by default in the public project and can be
 enabled explicitly through environment variables.
 
@@ -137,9 +154,7 @@ enabled explicitly through environment variables.
     "yeelight-iot": {
       "url": "https://api.yeelight.com/apis/mcp_server/v1/mcp",
       "headers": {
-        "Authorization": "<YOUR_AUTHORIZATION>",
-        "Client-Id": "<YOUR_CLIENT_ID>",
-        "House-Id": "<YOUR_HOUSE_ID>"
+        "Authorization": "<YOUR_AUTHORIZATION>"
       }
     }
   }
@@ -186,7 +201,8 @@ Common environment variables for local deployments:
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `YEELIGHT_IOT_MCP_API_BASE_URL` | `https://api.yeelight.com` | Yeelight API origin |
-| `YEELIGHT_IOT_MCP_BIND_HOST` | `127.0.0.1` | Local bind address |
+| `YEELIGHT_IOT_MCP_DEFAULT_REGION` | `cn` | Fallback Region for opaque tokens |
+| `YEELIGHT_IOT_MCP_BIND_HOST` | `127.0.0.1` in local/test | Bind address; production defaults to `0.0.0.0` |
 | `YEELIGHT_IOT_MCP_PATH` | `/mcp` | Streamable HTTP path |
 | `YEELIGHT_IOT_MCP_HTTP_TIMEOUT` | `15` | Upstream timeout in seconds |
 | `YEELIGHT_IOT_MCP_FETCH_NODES_MAX_SIZE` | `300` | Maximum list page size |
@@ -196,12 +212,13 @@ Common environment variables for local deployments:
 ## Test
 
 ```bash
-uv run --no-project --with-editable '.[test]' python -m pytest -q
+uv run --extra test pytest -q
 ```
 
-Tests cover authorization normalization, pagination, property normalization,
-redacted plans, dry-run defaults, confirmation guards, and configuration
-overrides. They do not call the live Yeelight cloud.
+Tests cover JWT claim handling, multi-Region routing, local Profile isolation,
+Pro home fallback, authorization normalization, pagination, redacted plans,
+dry-run defaults, confirmation guards, and configuration overrides. They do not
+call the live Yeelight cloud.
 
 ## License
 

@@ -78,6 +78,7 @@ class CloudSafetyTest(unittest.TestCase):
         self.assertTrue(result.dryRun)
         self.assertEqual(result.code, "DRY_RUN")
         self.assertEqual(result.plan.headers["authorization"], "Bearer ****")
+        self.assertEqual(result.plan.headers["clientId"], "****")
 
     def test_real_execution_requires_confirm_side_effect(self):
         plan = build_control_plan("POST", "https://api.example/control", {"authorization": "Bearer token", "clientId": "client"})

@@ -22,6 +22,18 @@ server. Treat `tools/list` schemas as the current contract.
 IoT MCP and Metadata MCP can be configured together. They use the same cloud
 context headers but expose different tool surfaces.
 
+## Strongly Recommended QR Authorization
+
+```bash
+npm install --global yeelight-ai
+yeelight-ai login --qr
+```
+
+Install [Yeelight AI CLI](https://github.com/Yeelight/yeelight-cli), then in
+Yeelight Pro APP tap Home's top-right `+` -> **MCP Authorization** and scan the
+terminal QR code shown in Figure 1 of the CLI README. Manual token setup is an
+advanced compatibility path.
+
 ## Hosted Streamable HTTP
 
 Use this endpoint:
@@ -30,13 +42,16 @@ Use this endpoint:
 https://api.yeelight.com/apis/mcp_server/v1/mcp
 ```
 
-Provide the following headers through the client's secret storage:
+Provide Authorization through the client's secret storage:
 
 ```text
 Authorization: <YOUR_AUTHORIZATION>
-Client-Id: <YOUR_CLIENT_ID>
-House-Id: <YOUR_HOUSE_ID>
 ```
+
+`Yeelight-Region` and `House-Id` are optional. Region can come from the JWT and
+House ID falls back to the first Pro home. Users never configure Client ID. IoT
+upstream calls use the validated JWT claim, or `dev` in the development Region
+and `iot-app` in public Regions when the claim is absent.
 
 ## Cursor and Similar Clients
 
@@ -46,9 +61,7 @@ House-Id: <YOUR_HOUSE_ID>
     "yeelight-iot": {
       "url": "https://api.yeelight.com/apis/mcp_server/v1/mcp",
       "headers": {
-        "Authorization": "<YOUR_AUTHORIZATION>",
-        "Client-Id": "<YOUR_CLIENT_ID>",
-        "House-Id": "<YOUR_HOUSE_ID>"
+        "Authorization": "<YOUR_AUTHORIZATION>"
       }
     }
   }
@@ -69,12 +82,10 @@ listing tools and calling a read-only tool such as `get_currnet_house_info`.
         "mcp-remote",
         "https://api.yeelight.com/apis/mcp_server/v1/mcp",
         "--header", "Authorization:${AUTHORIZATION}",
-        "--header", "Client-Id:${CLIENT_ID}",
         "--header", "House-Id:${HOUSE_ID}"
       ],
       "env": {
         "AUTHORIZATION": "<YOUR_AUTHORIZATION>",
-        "CLIENT_ID": "<YOUR_CLIENT_ID>",
         "HOUSE_ID": "<YOUR_HOUSE_ID>"
       }
     }
@@ -90,13 +101,15 @@ or header syntax.
 ```bash
 uv sync --extra test
 
+YEELIGHT_IOT_MCP_RUNTIME_ENV=local \
 YEELIGHT_IOT_MCP_NACOS_ENABLED=false \
 PYTHONPATH=src \
 uv run uvicorn main:streamable_http_app --host 127.0.0.1 --port 9000
 ```
 
-Configure the client URL as `http://127.0.0.1:9000/mcp`. Authentication remains
-required because the local server forwards requests to the Yeelight cloud.
+Configure the client URL as `http://127.0.0.1:9000/mcp`. With no request Header,
+this local/test loopback service can read the Cloud Profile saved by
+`yeelight-ai login --qr`. Remote clients still send Authorization headers.
 
 Do not bind to a public interface without a trusted reverse proxy, network
 policy, TLS, and appropriate secret handling. The built-in middleware validates
@@ -117,7 +130,8 @@ Authorization but is not a complete public edge security layer.
 ## Troubleshooting
 
 - `401`: verify the Authorization header and provision a new token if expired.
-- Empty or wrong topology: verify `House-Id` and refresh list tools.
+- Empty or wrong topology: verify the JWT Region, optionally set `House-Id`, and
+  refresh list tools; an omitted House ID selects the first Pro home.
 - Missing target: resolve the name to the current numeric node ID first.
 - Validation error: refresh `tools/list` instead of guessing request fields.
 - Timeout: verify endpoint, proxy, DNS, and `YEELIGHT_IOT_MCP_HTTP_TIMEOUT`.

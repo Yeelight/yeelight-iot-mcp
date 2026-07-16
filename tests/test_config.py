@@ -18,6 +18,7 @@ ENV_NAMES = [
         "RUNTIME_ENV",
         "SERVER_NAME",
         "API_BASE_URL",
+        "DEFAULT_REGION",
         "HTTP_TIMEOUT",
         "PATH",
         "STATELESS_HTTP",
@@ -170,3 +171,13 @@ def test_invalid_numeric_overrides_fall_back_to_service_defaults():
     assert config.settings.PORT == 9000
     assert config.settings.NACOS_CONFIG["port"] == 9000
     assert config.settings.NACOS_CONFIG["weight"] == 1.0
+
+
+def test_default_region_supports_canonical_and_legacy_overrides():
+    canonical = load_config({"YEELIGHT_IOT_MCP_DEFAULT_REGION": "eu"})
+    legacy = load_config({"IOT_MCP_DEFAULT_REGION": "sg"})
+
+    assert canonical.settings.DEFAULT_REGION == "eu"
+    assert legacy.settings.DEFAULT_REGION == "sg"
+    assert canonical.settings.REGION_HEADER_KEY == "Yeelight-Region"
+    assert not hasattr(canonical.settings, "CLIENT_ID_HEADER_KEY")

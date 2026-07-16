@@ -7,6 +7,10 @@
 或 [GitCode](https://gitcode.com/Yeelight/yeelight-iot-mcp) 国内镜像，
 [GitLab.com](https://gitlab.com/Yeelight/yeelight-iot-mcp) 是全球备用源。
 
+认证时强烈建议先安装 [Yeelight AI CLI](https://github.com/Yeelight/yeelight-cli)，运行
+`yeelight-ai login --qr`，然后在 Yeelight Pro APP 首页点击右上角 `+` ->
+**MCP 授权** 扫描终端二维码。手动 Token 配置仅作为高级兼容方式。
+
 不同 MCP 客户端的工具调用 envelope 可能不同。下面的 JSON 是对应工具的
 arguments 对象。
 
@@ -134,7 +138,8 @@ arguments 对象。
 
 ## 运行规则
 
-- Authorization、Client ID 和 House ID 属于传输 Header，不要放进工具参数或日志。
+- Authorization 和 House ID 属于传输上下文，不要放进工具参数或日志；用户不需要
+  配置 Client ID。
 - 需要完整拓扑时必须跟随分页。
 - 使用服务端返回的 ID、属性类型、范围、枚举值和 operator。
 - 所有写入和情景执行都先预览。

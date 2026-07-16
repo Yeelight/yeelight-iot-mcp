@@ -1,5 +1,8 @@
 import os
 
+from config.region import DEFAULT_REGION as REGION_DEFAULT
+from config.region import normalize_api_base_url, normalize_region
+
 
 _SERVICE_NAME = "yeelight-online-iot-mcp-server"
 _DEFAULT_API_BASE_URL = "https://api.yeelight.com"
@@ -88,14 +91,22 @@ class Config:
     )
     SERVICE_NAME = _SERVICE_NAME
     RUNTIME_ENV = _RUNTIME_ENV
-    API_BASE_URL = _env(
+    API_BASE_URL = normalize_api_base_url(_env(
         [
             "YEELIGHT_IOT_MCP_API_BASE_URL",
             "IOT_MCP_API_BASE_URL",
             "APP_MCP_API_BASE_URL",
         ],
         _DEFAULT_API_BASE_URL,
-    ).rstrip("/")
+    ))
+    DEFAULT_REGION = normalize_region(_env(
+        [
+            "YEELIGHT_IOT_MCP_DEFAULT_REGION",
+            "IOT_MCP_DEFAULT_REGION",
+            "APP_MCP_DEFAULT_REGION",
+        ],
+        REGION_DEFAULT,
+    ))
     HTTP_TIMEOUT = _env_int(
         [
             "YEELIGHT_IOT_MCP_HTTP_TIMEOUT",
@@ -113,8 +124,8 @@ class Config:
         True,
     )
     AUTHORIZATION_HEADER_KEY = "Authorization"
+    REGION_HEADER_KEY = "Yeelight-Region"
     HOUSE_ID_HEADER_KEY = "House-Id"
-    CLIENT_ID_HEADER_KEY = "Client-Id"
     FETCH_NODES_MAX_SIZE = _env_int(
         [
             "YEELIGHT_IOT_MCP_FETCH_NODES_MAX_SIZE",

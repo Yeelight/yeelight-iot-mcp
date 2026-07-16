@@ -5,8 +5,8 @@ from utils.http import HttpClient
 from config.config import settings
 from typing import Annotated
 from pydantic import Field
-from utils.auth import normalize_authorization_header
 from service.pagination import append_next_cursor, resolve_page
+from service.request_context import CloudContext, build_upstream_headers
 from service.safety import build_control_plan, find_blocked_control_prop_name, is_success_response, normalize_control_body, reject_blocked_control_property, require_side_effect_confirmation
 
 
@@ -64,15 +64,14 @@ execute_scene_tool_desc = """
 - 如需真实执行，必须显式传 dryRun=false 且 confirmSideEffect=true。
 """
 
-def get_auth_info(context: Context) -> tuple[str, str, str]:
+def get_cloud_context(context: Context) -> CloudContext:
     request_context = getattr(context, "request_context", None)
     request = getattr(request_context, "request", None)
-    if request is None or not hasattr(request, "headers"):
-        raise ValueError("request or request.headers is None, 无法获取认证信息")
-    authorization = request.headers.get(settings.AUTHORIZATION_HEADER_KEY)
-    client_id = request.headers.get(settings.CLIENT_ID_HEADER_KEY)
-    house_id = request.headers.get(settings.HOUSE_ID_HEADER_KEY)
-    return normalize_authorization_header(authorization), client_id, house_id
+    state = getattr(request, "state", None)
+    cloud = getattr(state, "cloud_context", None)
+    if not isinstance(cloud, CloudContext):
+        raise ValueError("request.state.cloud_context 缺失，无法获取已验证认证信息")
+    return cloud
 
 
 def register_house_tool(mcp:FastMCP):
@@ -81,9 +80,9 @@ def register_house_tool(mcp:FastMCP):
         description="获取用户当前家庭（或项目）的信息",
     )
     def get_currnet_house_info(context: Context) -> HouseInfo:
-        authorization, client_id, house_id = get_auth_info(context)
-        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/r/info"
-        response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
+        cloud = get_cloud_context(context)
+        url = f"{cloud.api_base_url}/v1/open/node/house/{cloud.house_id}/r/info"
+        response = http_client.get(url, headers=build_upstream_headers(cloud))
         if response.get("code") != "200":
             return HouseInfo(**{"isError":True, "errorMessage":response.get("msg")})
         return HouseInfo(**response.get("data"))
@@ -99,11 +98,11 @@ def register_area_tool(mcp:FastMCP):
         cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
         limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
     ) -> AreasResponse:
-        authorization, client_id, house_id = get_auth_info(context)
+        cloud = get_cloud_context(context)
         page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
-        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/areas/r/list/{page_no}/{page_size}"
+        url = f"{cloud.api_base_url}/v1/open/node/house/{cloud.house_id}/areas/r/list/{page_no}/{page_size}"
 
-        response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
+        response = http_client.get(url, headers=build_upstream_headers(cloud))
         if response.get("code") != "200":
             return AreasResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
         return AreasResponse(**append_next_cursor(response.get("data")))
@@ -119,10 +118,10 @@ def register_room_tool(mcp:FastMCP):
         cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
         limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
     ) -> RoomsResponse:
-        authorization, client_id, house_id = get_auth_info(context)
+        cloud = get_cloud_context(context)
         page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
-        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/rooms/r/list/{page_no}/{page_size}"
-        response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
+        url = f"{cloud.api_base_url}/v1/open/node/house/{cloud.house_id}/rooms/r/list/{page_no}/{page_size}"
+        response = http_client.get(url, headers=build_upstream_headers(cloud))
         if response.get("code") != "200":
             return RoomsResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
         return RoomsResponse(**append_next_cursor(response.get("data")))
@@ -139,13 +138,13 @@ def register_device_tool(mcp:FastMCP):
         cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
         limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
     ) -> DevicesResponse:
-        authorization, client_id, house_id = get_auth_info(context)
+        cloud = get_cloud_context(context)
         page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
         if roomId:
-            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/devices/r/list/{page_no}/{page_size}?roomId={roomId}"
+            url = f"{cloud.api_base_url}/v1/open/node/house/{cloud.house_id}/devices/r/list/{page_no}/{page_size}?roomId={roomId}"
         else:
-            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/devices/r/list/{page_no}/{page_size}"
-        response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
+            url = f"{cloud.api_base_url}/v1/open/node/house/{cloud.house_id}/devices/r/list/{page_no}/{page_size}"
+        response = http_client.get(url, headers=build_upstream_headers(cloud))
         if response.get("code") != "200":
             return DevicesResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
         return DevicesResponse(**append_next_cursor(response.get("data")))
@@ -162,13 +161,13 @@ def register_group_tool(mcp:FastMCP):
         cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
         limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
     ) -> DevicesResponse:
-        authorization, client_id, house_id = get_auth_info(context)
+        cloud = get_cloud_context(context)
         page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
         if roomId:
-            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/groups/r/list/{page_no}/{page_size}?roomId={roomId}"
+            url = f"{cloud.api_base_url}/v1/open/node/house/{cloud.house_id}/groups/r/list/{page_no}/{page_size}?roomId={roomId}"
         else:
-            url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/groups/r/list/{page_no}/{page_size}"
-        response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
+            url = f"{cloud.api_base_url}/v1/open/node/house/{cloud.house_id}/groups/r/list/{page_no}/{page_size}"
+        response = http_client.get(url, headers=build_upstream_headers(cloud))
         if response.get("code") != "200":
             return DevicesResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
         return DevicesResponse(**append_next_cursor(response.get("data")))
@@ -184,10 +183,10 @@ def register_scene_tool(mcp:FastMCP):
         cursor: Annotated[Optional[str], Field(None, description="分页游标；来自上一次返回的 nextCursor，首次查询可不传")] = None,
         limit: Annotated[Optional[int], Field(None, description="每页数量，最大不超过服务端配置上限")] = None,
     ) -> ScenesResponse:
-        authorization, client_id, house_id = get_auth_info(context)
+        cloud = get_cloud_context(context)
         page_no, page_size = resolve_page(cursor, limit, settings.FETCH_NODES_MAX_SIZE, settings.FETCH_NODES_MAX_SIZE)
-        url = f"{settings.API_BASE_URL}/v1/open/node/house/{house_id}/scenes/r/list/{page_no}/{page_size}"
-        response = http_client.get(url, headers={"authorization": authorization, "clientId": client_id})
+        url = f"{cloud.api_base_url}/v1/open/node/house/{cloud.house_id}/scenes/r/list/{page_no}/{page_size}"
+        response = http_client.get(url, headers=build_upstream_headers(cloud))
         if response.get("code") != "200":
             return ScenesResponse(**{"isError": True, "errorMessage": response.get("msg"), "total": 0, "pageSize": page_size, "rows": [], "pageNum": page_no})
         return ScenesResponse(**append_next_cursor(response.get("data")))
@@ -198,15 +197,12 @@ def register_control_node_tool(mcp:FastMCP):
         description=control_node_tool_desc
     )
     def control_node(context: Context, controlRequest: Annotated[ControlNodeRequest, Field(description="节点控制请求体，包含节点ID、节点类型、控制指令和 dryRun/confirmSideEffect 选项")]) -> ControlExecutionResult:
-        authorization, client_id, house_id = get_auth_info(context)
+        cloud = get_cloud_context(context)
         node_type = controlRequest.nodeType
         node_id = controlRequest.nodeId
         command = controlRequest.command
-        url = f"{settings.API_BASE_URL}/v1/open/control/house/{house_id}/control/{node_type}/{node_id}/w/properties"
-        headers = {
-            "authorization": authorization,
-            "clientId": client_id
-        }
+        url = f"{cloud.api_base_url}/v1/open/control/house/{cloud.house_id}/control/{node_type}/{node_id}/w/properties"
+        headers = build_upstream_headers(cloud)
         body = normalize_control_body(command.model_dump())
         plan = build_control_plan("POST", url, headers, body)
         blocked_prop_name = find_blocked_control_prop_name(body)
@@ -226,12 +222,9 @@ def register_execute_scene_tool(mcp:FastMCP):
         description=execute_scene_tool_desc
     )
     def execute_scene(context: Context, request: Annotated[ExecuteSceneRequest, Field(description="执行情景请求，包含 sceneId 和 dryRun/confirmSideEffect 选项")]) -> ControlExecutionResult:
-        authorization, client_id, house_id = get_auth_info(context)
-        url = f"{settings.API_BASE_URL}/v1/open/control/house/{house_id}/control/w/scenes/{request.sceneId}"
-        headers = {
-            "authorization": authorization,
-            "clientId": client_id
-        }
+        cloud = get_cloud_context(context)
+        url = f"{cloud.api_base_url}/v1/open/control/house/{cloud.house_id}/control/w/scenes/{request.sceneId}"
+        headers = build_upstream_headers(cloud)
         plan = build_control_plan("POST", url, headers)
         guard_result = require_side_effect_confirmation(request.dryRun, request.confirmSideEffect, plan)
         if guard_result is not None:

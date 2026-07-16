@@ -8,6 +8,11 @@ or [GitCode](https://gitcode.com/Yeelight/yeelight-iot-mcp) mirror when GitHub i
 not reachable, with [GitLab.com](https://gitlab.com/Yeelight/yeelight-iot-mcp)
 as a global fallback.
 
+For authentication, strongly prefer installing
+[Yeelight AI CLI](https://github.com/Yeelight/yeelight-cli), running
+`yeelight-ai login --qr`, and scanning with Yeelight Pro APP Home's top-right
+`+` -> **MCP Authorization**. Manual token configuration is an advanced fallback.
+
 The exact envelope used to call a tool depends on the MCP client. The JSON
 objects below are the arguments for the named tool.
 
@@ -140,8 +145,8 @@ For confirmed execution:
 
 ## Operating Rules
 
-- Keep Authorization, Client ID, and House ID out of tool arguments and logs;
-  they belong in transport headers.
+- Keep Authorization and House ID out of tool arguments and logs; they belong
+  in transport context. Users never configure Client ID.
 - Follow pagination when a complete topology is required.
 - Use returned IDs, property types, ranges, enum values, and operators.
 - Preview every write and scene execution.

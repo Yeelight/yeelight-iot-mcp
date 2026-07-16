@@ -11,6 +11,8 @@ def redact_headers(headers: dict) -> dict:
     result = dict(headers)
     if result.get("authorization"):
         result["authorization"] = "Bearer ****"
+    if result.get("clientId"):
+        result["clientId"] = "****"
     return result
 
 
