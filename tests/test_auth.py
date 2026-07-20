@@ -10,8 +10,8 @@ SRC_DIR = PROJECT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from config.yeelight_ai import CloudProfile
 from middleware.auth import AuthMiddleware
+from service.request_context import CredentialBundle
 
 
 class Headers(dict):
@@ -128,11 +128,6 @@ def test_header_bundle_uses_jwt_region_client_id_and_first_pro_house(monkeypatch
 
 def test_explicit_header_bundle_does_not_read_or_mix_local_profile(monkeypatch):
     middleware = configured_middleware(monkeypatch, runtime_env="local", bind_host="127.0.0.1")
-
-    def forbidden_profile():
-        raise AssertionError("Header 模式不应读取本机 Profile")
-
-    monkeypatch.setattr("middleware.auth.load_cloud_profile", forbidden_profile)
     middleware.check_token_valid = lambda *args: async_true()
     middleware.resolve_first_house = lambda *args: async_value("unexpected")
 
@@ -150,15 +145,15 @@ def test_explicit_header_bundle_does_not_read_or_mix_local_profile(monkeypatch):
     assert context.house_id == "header-house"
 
 
-def test_local_loopback_falls_back_to_complete_cli_profile(monkeypatch):
+def test_explicit_test_credential_provider_can_supply_isolated_bundle(monkeypatch):
     middleware = configured_middleware(monkeypatch, runtime_env="local", bind_host="127.0.0.1")
     token = fake_jwt({"region": "EU", "client_id": "profile-client"})
-    monkeypatch.setattr("middleware.auth.load_cloud_profile", lambda: CloudProfile(
-        name="default",
+    middleware.credential_provider = lambda _request: CredentialBundle(
         authorization=token,
         house_id="profile-house",
         region="cn",
-    ))
+        source="test-injection",
+    )
     middleware.check_token_valid = lambda *args: async_true()
     middleware.resolve_first_house = lambda *args: async_value("unexpected")
 
@@ -167,18 +162,25 @@ def test_local_loopback_falls_back_to_complete_cli_profile(monkeypatch):
 
     context = asyncio.run(middleware.dispatch(Request(), call_next))
 
-    assert context.credential_source == "yeelight-ai"
-    assert context.region == "eu"
+    assert context.credential_source == "test-injection"
+    assert context.region == "cn"
     assert context.house_id == "profile-house"
     assert context.client_id == "profile-client"
 
 
 def test_public_binding_without_authorization_does_not_read_profile(monkeypatch):
     middleware = configured_middleware(monkeypatch, runtime_env="prod", bind_host="0.0.0.0")
-    monkeypatch.setattr(
-        "middleware.auth.load_cloud_profile",
-        lambda: (_ for _ in ()).throw(AssertionError("公网模式不应读取本机 Profile")),
-    )
+
+    async def call_next(request):
+        raise AssertionError("缺少认证不应继续")
+
+    response = asyncio.run(middleware.dispatch(Request(), call_next))
+
+    assert response.status_code == 401
+
+
+def test_local_loopback_without_header_or_injection_is_rejected(monkeypatch):
+    middleware = configured_middleware(monkeypatch, runtime_env="local", bind_host="127.0.0.1")
 
     async def call_next(request):
         raise AssertionError("缺少认证不应继续")

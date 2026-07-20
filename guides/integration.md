@@ -25,14 +25,11 @@ context headers but expose different tool surfaces.
 ## Strongly Recommended QR Authorization
 
 ```bash
-npm install --global yeelight-ai
-yeelight-ai login --qr
+npm install --global yeelight-home
+yeelight-home setup --lang en-US --mode mcp --agent cursor --mcp-source cloud --yes
 ```
 
-Install [Yeelight AI CLI](https://github.com/Yeelight/yeelight-cli), then in
-Yeelight Pro APP tap Home's top-right `+` -> **MCP Authorization** and scan the
-terminal QR code shown in Figure 1 of the CLI README. Manual token setup is an
-advanced compatibility path.
+The command displays a QR code. In Yeelight Pro app Home, tap the top-right `+` -> **MCP Authorization** and scan it. One Pro home is selected automatically; multiple homes are presented by name. Cloud mode configures Metadata and IoT MCP together. Manual token setup is an advanced compatibility path.
 
 ## Hosted Streamable HTTP
 
@@ -107,9 +104,7 @@ PYTHONPATH=src \
 uv run uvicorn main:streamable_http_app --host 127.0.0.1 --port 9000
 ```
 
-Configure the client URL as `http://127.0.0.1:9000/mcp`. With no request Header,
-this local/test loopback service can read the Cloud Profile saved by
-`yeelight-ai login --qr`. Remote clients still send Authorization headers.
+Configure the client URL as `http://127.0.0.1:9000/mcp`. Local and remote deployments both require an explicit Authorization header on every request. The service never reads the operator's CLI Profile; tests may provide credentials only through explicit isolated injection.
 
 Do not bind to a public interface without a trusted reverse proxy, network
 policy, TLS, and appropriate secret handling. The built-in middleware validates

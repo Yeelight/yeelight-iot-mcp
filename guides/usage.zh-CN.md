@@ -7,8 +7,8 @@
 或 [GitCode](https://gitcode.com/Yeelight/yeelight-iot-mcp) 国内镜像，
 [GitLab.com](https://gitlab.com/Yeelight/yeelight-iot-mcp) 是全球备用源。
 
-认证时强烈建议先安装 [Yeelight AI CLI](https://github.com/Yeelight/yeelight-cli)，运行
-`yeelight-ai login --qr`，然后在 Yeelight Pro APP 首页点击右上角 `+` ->
+认证时强烈建议先安装 [Yeelight Home](https://github.com/Yeelight/yeelight-home)，运行
+`yeelight-home auth login --qr`，然后在 Yeelight Pro APP 首页点击右上角 `+` ->
 **MCP 授权** 扫描终端二维码。手动 Token 配置仅作为高级兼容方式。
 
 不同 MCP 客户端的工具调用 envelope 可能不同。下面的 JSON 是对应工具的

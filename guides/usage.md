@@ -9,8 +9,8 @@ not reachable, with [GitLab.com](https://gitlab.com/Yeelight/yeelight-iot-mcp)
 as a global fallback.
 
 For authentication, strongly prefer installing
-[Yeelight AI CLI](https://github.com/Yeelight/yeelight-cli), running
-`yeelight-ai login --qr`, and scanning with Yeelight Pro APP Home's top-right
+[Yeelight Home](https://github.com/Yeelight/yeelight-home), running
+`yeelight-home auth login --qr`, and scanning with Yeelight Pro APP Home's top-right
 `+` -> **MCP Authorization**. Manual token configuration is an advanced fallback.
 
 The exact envelope used to call a tool depends on the MCP client. The JSON

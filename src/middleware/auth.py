@@ -5,7 +5,6 @@ from starlette.responses import JSONResponse
 
 from config.config import settings
 from config.region import RegionError, api_base_for_region, resolve_region
-from config.yeelight_ai import ProfileError, is_local_profile_allowed, load_cloud_profile
 from service.request_context import (
     CloudContext,
     CredentialBundle,
@@ -45,17 +44,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return None
 
     async def dispatch(self, request: Request, call_next):
-        try:
-            credentials = self._resolve_credentials(request)
-        except ProfileError as error:
-            return JSONResponse({"error": str(error)}, status_code=401)
+        credentials = self._resolve_credentials(request)
         if credentials is None:
             return JSONResponse({"error": "缺少或无效的 Token"}, status_code=401)
 
         claims = extract_token_claims(credentials.authorization)
         region_hint = credentials.region or claims.region
-        if credentials.source == "yeelight-ai":
-            region_hint = claims.region or credentials.region
         try:
             region = resolve_region(region_hint, settings.DEFAULT_REGION)
             api_base_url = api_base_for_region(
@@ -98,12 +92,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 house_id=request.headers.get(settings.HOUSE_ID_HEADER_KEY),
                 source="header",
             )
-        if not is_local_profile_allowed(settings.RUNTIME_ENV, settings.BIND_HOST):
-            return None
-        profile = load_cloud_profile()
-        return CredentialBundle(
-            authorization=profile.authorization,
-            region=profile.region,
-            house_id=profile.house_id,
-            source="yeelight-ai",
-        )
+        provider = getattr(self, "credential_provider", None)
+        if callable(provider):
+            return provider(request)
+        return None
