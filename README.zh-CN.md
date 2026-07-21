@@ -12,44 +12,40 @@
 可以从任一可访问平台克隆代码，但请仍在 GitHub 提交 Issue 和贡献修改。
 
 > [!IMPORTANT]
-> **第一次使用 Yeelight MCP？请从 [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp) 开始，而不是从本项目开始。**
+> **第一次使用 Yeelight MCP？请运行一套 Yeelight MCP setup，不要单独安装本仓库。**
 >
-> Metadata MCP 是新集成推荐的统一云端 MCP 入口。只有明确需要 IoT MCP
-> 当前聚焦的直接设备控制、实时状态或情景执行能力时，才使用本项目；也可以
-> 仅在这些场景下把它作为 Metadata MCP 的补充。
+> setup 会同时配置本实时状态/控制服务和
+> [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp)。
+> 本仓库继续作为专业服务、端点和工具的开发者参考。
 
 ## Yeelight 云端 MCP 功能组
 
 本项目是 Yeelight 官方云端 MCP 功能组中聚焦直接控制的组成部分。两个服务
-应当作为一个能力组使用，并以
-[Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp)
-作为主入口：
+独立部署，但普通用户通过同一次 setup 获得完整能力组：
 
 | 服务 | 在功能组中的定位 | 核心能力 |
 | --- | --- | --- |
-| **[Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp)（主入口）** | 新集成的默认入口和协调层。 | 广泛发现和受保护的管理工作流、多 Region 授权以及请求级家庭选择。 |
-| [IoT MCP](https://github.com/Yeelight/yeelight-iot-mcp)（能力补充） | 在 Metadata MCP 主集成上增加的聚焦直接控制扩展。 | 直接拓扑和实时状态访问、`control_node` 以及 `execute_scene`。 |
+| **[Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp)** | 家庭理解与受保护的管理。 | 广泛发现和受保护的管理工作流、多 Region 授权以及请求级家庭选择。 |
+| [IoT MCP](https://github.com/Yeelight/yeelight-iot-mcp) | 实时状态与聚焦控制。 | 直接拓扑和实时状态访问、`control_node` 以及 `execute_scene`。 |
 
-**推荐组合方式：**先配置 Metadata MCP，只有需要本项目聚焦的 IoT 工具时，
-才在同一 AI 客户端中增加 IoT MCP。
+**推荐组合方式：**只运行一次 Yeelight MCP setup，同时获得两个服务，不需要二次安装或扫码。
 
 ### 应该选择哪个 MCP？
 
 | 你的需求 | 推荐入口 |
 | --- | --- |
-| 第一次接入 Yeelight MCP | [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp) |
+| 第一次接入 Yeelight MCP | 使用 `yeelight-home setup --mode mcp --mcp-source cloud` 配置完整 Yeelight MCP |
 | 管理家庭、房间、设备、设备组、面板、情景、自动化、收藏、维护或账号 | [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp) |
 | 多 Region 授权和请求级家庭选择 | [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp)，可配合 [Yeelight Home](https://github.com/Yeelight/yeelight-home) 完成配置 |
 | 现有集成依赖 `control_node` 或 `execute_scene` | 继续使用 Yeelight IoT MCP |
-| Metadata MCP 尚未覆盖的特定直接控制、实时状态或情景执行 | 以 Metadata MCP 为主，仅在需要时增加 Yeelight IoT MCP |
+| 开发或排查聚焦的直接控制、实时状态或情景执行 | 使用本仓库的服务与工具文档 |
 
 ## 在 Yeelight AI 中的位置
 
-`yeelight-home` 是唯一安装、扫码和客户端配置入口。普通用户优先选择完整的 `yeelight-smart-home` Skill；轻量 MCP 新接入优先使用 Metadata MCP。本服务是兼容既有 `control_node`、`execute_scene` 和特定实时控制场景的专业补充。
+`yeelight-home` 提供推荐的安装、扫码和客户端配置流程。普通用户优先选择完整的 `yeelight-smart-home` Skill；MCP-only 客户端一次 cloud setup 接入完整 Yeelight MCP。两个云端服务随后独立于本地 Runtime 执行请求。
 
-用普通人的话说：不要因为看见本服务就安装它。先用 Metadata MCP，只有 AI
-确实需要下文列出的特定实时控制工具时再增加 IoT MCP。它不是 Yeelight Home
-或两个 Skill 的依赖。
+用普通人的话说：普通用户不需要单独安装本服务。统一 setup 已把它包含在内；
+既有或专业集成仍可独立使用它。它不是 Yeelight Home 或两个 Skill 的依赖。
 
 ## 既有和专业 IoT MCP 集成
 

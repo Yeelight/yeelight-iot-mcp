@@ -14,45 +14,44 @@ global fallback. Clone from any reachable source, but report issues and
 contribute changes on GitHub.
 
 > [!IMPORTANT]
-> **New to Yeelight MCP? Start with [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp), not this repository.**
+> **New to Yeelight MCP? Use one Yeelight MCP setup instead of installing this repository separately.**
 >
-> Metadata MCP is the recommended primary cloud MCP for new integrations. Use
-> IoT MCP only when you specifically need its focused direct device control,
-> current live state, or scene execution capabilities, or add it as a companion
-> to Metadata MCP for those cases.
+> The setup configures this live-state/control service and
+> [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp)
+> together. This repository remains the developer reference for its specialized
+> server, endpoint, and tools.
 
 ## Yeelight Cloud MCP Suite
 
 This repository is the focused-control part of the official Yeelight cloud MCP
-suite. The suite is designed to be used as one capability group with
-[Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp) as
-the primary entry:
+suite. Ordinary users receive both independently deployed services as one
+capability group through the same setup:
 
 | Server | Role in the suite | Core capabilities |
 | --- | --- | --- |
-| **[Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp) (primary)** | Default entry point and coordination layer for new integrations. | Broad discovery and guarded management workflows, multi-region authorization, and request-scoped home selection. |
-| [IoT MCP](https://github.com/Yeelight/yeelight-iot-mcp) (companion) | Focused direct-control extension for the primary Metadata MCP integration. | Direct topology and live-state access, `control_node`, and `execute_scene`. |
+| **[Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp)** | Home understanding and guarded management. | Broad discovery and guarded management workflows, multi-region authorization, and request-scoped home selection. |
+| [IoT MCP](https://github.com/Yeelight/yeelight-iot-mcp) | Live state and focused control. | Direct topology and live-state access, `control_node`, and `execute_scene`. |
 
-**Recommended composition:** configure Metadata MCP first, then add IoT MCP to
-the same AI client only when its focused tools are required.
+**Recommended composition:** run one Yeelight MCP setup so both services are
+available without a second install or scan.
 
 ### Which MCP should I use?
 
 | What you need | Recommended entry point |
 | --- | --- |
-| First Yeelight MCP integration | [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp) |
+| First Yeelight MCP integration | Configure the complete Yeelight MCP suite with `yeelight-home setup --mode mcp --mcp-source cloud` |
 | Homes, rooms, devices, groups, panels, scenes, automations, favorites, maintenance, or account workflows | [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp) |
 | Multi-region authorization and request-scoped home selection | [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp), optionally configured with [Yeelight Home](https://github.com/Yeelight/yeelight-home) |
 | An existing integration that depends on `control_node` or `execute_scene` | Keep using Yeelight IoT MCP |
-| Focused direct control, live state, or scene execution not yet covered by Metadata MCP | Use Metadata MCP as the primary entry and add Yeelight IoT MCP only when needed |
+| Develop or troubleshoot focused direct control, live state, or scene execution | Use this repository's server and tool documentation |
 
 ## Place In Yeelight AI
 
-`yeelight-home` is the only installation, QR sign-in, and client-configuration entry. Ordinary users should prefer the complete `yeelight-smart-home` Skill, while new lightweight MCP integrations start with Metadata MCP. This service is a focused companion for existing `control_node`, `execute_scene`, and specific live-control compatibility needs.
+`yeelight-home` provides the recommended installation, QR sign-in, and client-configuration flow. Ordinary users should prefer the complete `yeelight-smart-home` Skill; MCP-only clients run one cloud setup for the complete Yeelight MCP suite. The cloud services then execute independently of the local Runtime.
 
-In plain language: do not add this server just because it exists. Add it only
-after Metadata MCP when your AI genuinely needs one of the focused live-control
-tools listed below. It is not a dependency of Yeelight Home or either Skill.
+In plain language: ordinary users do not install this server separately. It is
+included by the unified setup and remains independently addressable for existing
+or specialized integrations. It is not a dependency of Yeelight Home or either Skill.
 
 ## Existing and specialized IoT MCP integrations
 
