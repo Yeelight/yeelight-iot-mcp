@@ -17,6 +17,8 @@
 > setup 会同时配置本实时状态/控制服务和
 > [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp)。
 > 本仓库继续作为专业服务、端点和工具的开发者参考。
+>
+> 普通用户请跟随[中文官方教程](https://ai-tutorials.yeelight.com/zh/guides/yeelight-mcp/)完成整套接入，也可以查看 [English tutorial](https://ai-tutorials.yeelight.com/en/guides/yeelight-mcp/)。
 
 ## Yeelight 云端 MCP 功能组
 

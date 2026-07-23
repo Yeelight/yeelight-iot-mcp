@@ -20,6 +20,8 @@ contribute changes on GitHub.
 > [Yeelight Metadata MCP](https://github.com/Yeelight/yeelight-metadata-mcp)
 > together. This repository remains the developer reference for its specialized
 > server, endpoint, and tools.
+>
+> Follow the [official English Yeelight MCP tutorial](https://ai-tutorials.yeelight.com/en/guides/yeelight-mcp/) for the complete beginner path, or open the [Simplified Chinese tutorial](https://ai-tutorials.yeelight.com/zh/guides/yeelight-mcp/).
 
 ## Yeelight Cloud MCP Suite
 
